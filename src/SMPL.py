@@ -13,6 +13,7 @@ import sys
 import numpy as np
 from util import batch_global_rigid_transformation, batch_rodrigues, batch_lrotmin, reflect_pose
 import torch.nn as nn
+import pickle
 
 class SMPL(nn.Module):
     def __init__(self, model_path, joint_type = 'cocoplus', obj_saveable = False):
@@ -24,8 +25,11 @@ class SMPL(nn.Module):
 
         self.model_path = model_path
         self.joint_type = joint_type
-        with open(model_path, 'r') as reader:
-            model = json.load(reader)
+
+
+        model = pickle.load(open(model_path, 'rb'), encoding='latin1')
+        # with open(model_path, 'r') as reader:
+        #     model = json.load(reader)
         
         if obj_saveable:
             self.faces = model['f']
