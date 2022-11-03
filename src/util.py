@@ -22,10 +22,11 @@ def load_mean_theta():
     mean = np.zeros(args.total_theta_count, dtype = np.float)
 
     mean_values = h5py.File(args.smpl_mean_theta_path)
-    # mean_values = copy.deepcopy(h5py.File(args.smpl_mean_theta_path))
-    mean_pose =  copy.deepcopy(mean_values['pose'])
+    # mean_pose =  mean_values['pose']
+    mean_pose=mean_values.get('pose').value
     mean_pose[:3] = 0
-    mean_shape =  copy.deepcopy(mean_values['shape'])
+    # mean_shape =  mean_values['shape']
+    mean_shape=mean_values.get('shape').value
     mean_pose[0]=np.pi
 
     #init sacle is 0.9
