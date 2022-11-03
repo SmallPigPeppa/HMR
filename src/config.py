@@ -233,6 +233,17 @@ crop_size = {
     'densenet169':224
 }
 
+# data_set_path = {
+#     'coco':'E:/HMR/data/COCO/',
+#     'lsp':'E:/HMR/data/lsp',
+#     'lsp_ext':'E:/HMR/data/lsp_ext',
+#     'ai-ch':'E:/HMR/data/ai_challenger_keypoint_train_20170902',
+#     'mpi-inf-3dhp':'E:/HMR/data/mpi_inf_3dhp',
+#     'hum3.6m':'E:/HMR/data/human3.6m',
+#     'mosh':'E:/HMR/data/mosh_gen',
+#     'up3d':'E:/HMR/data/up3d_mpii'
+# }
+
 data_set_path = {
     'coco':'E:/HMR/data/COCO/',
     'lsp':'E:/HMR/data/lsp',
@@ -244,6 +255,10 @@ data_set_path = {
     'up3d':'E:/HMR/data/up3d_mpii'
 }
 
+# pre_trained_model = {
+#     'generator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_generator.pkl',
+#     'discriminator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_discriminator.pkl'
+# }
 pre_trained_model = {
     'generator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_generator.pkl',
     'discriminator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_discriminator.pkl'
