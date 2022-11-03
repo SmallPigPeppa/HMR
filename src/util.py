@@ -24,10 +24,10 @@ def load_mean_theta():
     # mean_values = h5py.File(args.smpl_mean_theta_path)
     mean_values = h5py.File(args.smpl_mean_theta_path)
     # mean_pose =  mean_values['pose']
-    mean_pose = mean_values.get('pose').values()
+    mean_pose = np.array(mean_values.get('pose').tolist())
     mean_pose[:3] = 0
     # mean_shape =  mean_values['shape']
-    mean_shape = mean_values.get('shape').values()
+    mean_shape = np.array(mean_values.get('shape').tolist())
     mean_pose[0] = np.pi
 
     # init sacle is 0.9
