@@ -54,8 +54,8 @@ class SMPL(nn.Module):
         self.register_buffer('posedirs', torch.from_numpy(np_posedirs).float())
 
         self.parents = np.array(model['kintree_table'])[0].astype(np.int32)
-
-        np_joint_regressor = np.array(model['cocoplus_regressor'], dtype=np.float)
+        # np_joint_regressor = np.array(model['cocoplus_regressor'], dtype=np.float)
+        np_joint_regressor = np.array(model['cocoplus_regressor'].toarray(), dtype=np.float)
         if joint_type == 'lsp':
             self.register_buffer('joint_regressor', torch.from_numpy(np_joint_regressor[:, :14]).float())
         else:
