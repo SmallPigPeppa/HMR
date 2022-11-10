@@ -202,6 +202,18 @@ class HMRTrainer(object):
                     flip_prob = self.flip_prob
                 )
                 data_set.append(hum36m)
+            elif data_set_name=='gta-im':
+                gta_im = hum36m_dataloader(
+                    data_set_path = data_set_path,
+                    use_crop = True,
+                    scale_range = [1.1, 1.2],
+                    use_flip = self.use_flip,
+                    min_pts_required = 5,
+                    pix_format = self.pix_format,
+                    normalize = self.normalize,
+                    flip_prob = self.flip_prob
+                )
+                data_set.append(gta_im)
             else:
                 msg = 'invalid 3d dataset'
                 sys.exit(msg)

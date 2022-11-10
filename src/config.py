@@ -214,9 +214,15 @@ parser.add_argument(
     help = 'enable inter supervision or not.'
 )
 
-train_2d_set = ['coco', 'lsp', 'lsp_ext', 'ai-ch']
-train_3d_set = ['mpi-inf-3dhp', 'hum3.6m']
-train_adv_set = ['mosh']
+# train_2d_set = ['coco', 'lsp', 'lsp_ext', 'ai-ch']
+# train_3d_set = ['mpi-inf-3dhp', 'hum3.6m']
+# train_adv_set = ['mosh']
+
+
+train_2d_set = ['gta-im']
+train_3d_set = ['gta-im']
+train_adv_set = ['gta-im']
+
 eval_set = ['up3d']
 
 allowed_encoder_net = ['hourglass', 'resnet50', 'densenet169']
