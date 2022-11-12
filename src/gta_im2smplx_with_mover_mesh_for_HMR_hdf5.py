@@ -21,31 +21,25 @@ kpts_pkl = np.array([i['kpvalue'] for i in info_pkl]).reshape(kpts_npz.shape[0],
 kpts_pkl_names = [i['kpname'] for i in info_pkl]
 world2cam = np.array(info_npz['world2cam_trans'])
 kpts_world = np.concatenate((kpts_npz, kpts_pkl), axis=1)
-valid_kpts=np.zeros([len(kpts_world),len(kpts_world[0]),1])
+kpts_valid = np.zeros([len(kpts_world), len(kpts_world[0]), 1])
 print(
-    f'loading kpts...\n kpts_npz.shape, kpts_pkl.shape, kpts_world.shape: {kpts_npz.shape}, {kpts_pkl.shape}, {kpts_world.shape}')
+    f'loading kpts...\nkpts_npz.shape, kpts_pkl.shape, kpts_world.shape: {kpts_npz.shape}, {kpts_pkl.shape}, {kpts_world.shape}')
 kpts_camera = []
-print(kpts_world[0])
-for i in range(len(kpts_world)):
-    for j in range(len(kpts_world[0])):
-        if sum(kpts_world[i,j])!=0:
-            valid_kpts[i,j]=1
+for i in range(len(kpts_world[0])):
+    if sum(kpts_world[0, i, :]) != 0:
+        kpts_valid[:, i] = 1
 for i in range(len(kpts_world)):
     r_i = world2cam[i][:3, :3].T
     t_i = world2cam[i][3, :3]
     # cam_point_i = r_i * kpts_world[i] + t_i
     cam_point_i = [np.matmul(r_i, kpt) + t_i for kpt in kpts_world[i]]
     kpts_camera.append(cam_point_i)
-
-kpts_camera=np.hstack(kpts_camera,valid_kpts)
-print(kpts_camera.shape)
-
-
+kpts_camera = np.concatenate((kpts_camera, kpts_valid), axis=-1)
 
 # step1
 # gta_im to gta
 kpts_gta_im = numpy.array(kpts_camera)
-kpts_gta = numpy.zeros(shape=(len(kpts_gta_im), len(GTA_KEYPOINTS), 3))
+kpts_gta = numpy.zeros(shape=(len(kpts_gta_im), len(GTA_KEYPOINTS), 4))
 gta_im_names = GTA_IM_NPZ_KEYPOINTS + GTA_IM_PKL_KEYPOINTS
 mapping_list = []
 
@@ -63,13 +57,10 @@ for i in range(len(kpts_gta)):
     for j in range(len(kpts_gta[0])):
         if mapping_list[i][j] != -1:
             kpts_gta[i][j] = kpts_gta_im[i][mapping_list[i][j]]
-# print(mapping_list)
-
 # average for nose
 for i in range(len(kpts_gta)):
     kpts_gta[i][-1] = np.average(kpts_gta[i][45:51], axis=0)
-# print(kpts_gta[0][45:51])
-# print(kpts_gta[0])
+
 # step2
 # gta to smplx
 mapping_list2 = []
@@ -80,66 +71,35 @@ for kpt_name in SMPLX_KEYPOINTS:
     else:
         mapping_list2.append(GTA_KEYPOINTS.index(kpt_name))
         valid_len += 1
-print(len(mapping_list2))
-print(mapping_list2)
-kpts_smplx = numpy.zeros(shape=(len(kpts_gta), len(SMPLX_KEYPOINTS), 3))
+print(f'tansform to smplx joints, num kpts: {len(mapping_list2)}')
+# print(mapping_list2)
+kpts_smplx = numpy.zeros(shape=(len(kpts_gta), len(SMPLX_KEYPOINTS), 4))
 for i in range(len(kpts_smplx)):
     for j in range(len(kpts_smplx[0])):
         if mapping_list2[j] != -1:
             kpts_smplx[i][j] = kpts_gta[i][mapping_list2[j]]
 
 # step3: save smplx as hdf5
-temp_name = "samples_clean/3_3_78_Female2_0.hdf5"
-hdf5_name = "samples_clean_gta/FPS-5-clean-debug/FPS-5-2020-06-11-10-06-48.hdf5"
-# joints[:, :, 0] *=  -1
-# joints = info_npz['joints_3d_camera']
-# img_list=[24]
-img_list = list(range(408, 955))
-img_list = list(range(0, 955))
-with h5py.File(hdf5_name, "r+") as f:
-    print("Keys: %s" % f.keys())
-    del f['skeleton_joints']
-    print("Keys: %s" % f.keys())
-    f.create_dataset('skeleton_joints', data=kpts_smplx[img_list])
-    print(f['skeleton_joints'])
-    print("Keys: %s" % f.keys())
-mapping_list3_new = []
-for idx, valid in enumerate(mapping_list2):
-    if kpts_smplx[0][idx][2] > 10:
-        mapping_list3_new.append(-1)
-    elif valid != -1:
-        mapping_list3_new.append(idx)
-    else:
-        mapping_list3_new.append(-1)
-print(mapping_list3_new)
+h5f = h5py.File(os.path.join(data_root, rec_idx, 'annot.h5'), 'w')
+h5f.create_dataset('gt2d', data=kpts_smplx)
+h5f.create_dataset('gt3d', data=kpts_smplx)
+h5f.create_dataset('pose', data=kpts_smplx)
 
-mapping_list3 = []
-for idx, valid in enumerate(mapping_list2):
-    if valid != -1:
-        mapping_list3.append(idx)
-    else:
-        mapping_list3.append(-1)
-print(mapping_list3)
+# step3: get smplx mesh pose and shape
+smplx_parms = pickle.load(open(os.path.join(data_root, rec_idx, '001_all.pkl'), 'rb'))
+shape = smplx_parms['betas']  # 1,10
+left_hand_pose = smplx_parms['left_hand_pose']  # 955,12
+right_hand_pose = smplx_parms['right_hand_pose']  # 955,12
+global_orient = smplx_parms['global_orient']  # 955,3
+transl = smplx_parms['transl']  # 955,3
+jaw_pose = smplx_parms['jaw_pose']  # 955,3
+leye_pose = smplx_parms['leye_pose']  # 955,3
+reye_pose = smplx_parms['reye_pose']  # 955,3
+body_pose = smplx_parms['body_pose']  # 955,63
 
-# body_list=[]
-# from kpts_mapping.smplx import SMPLX_LIMBS
-# for i in SMPLX_LIMBS['body']:
-#     for j in i:
-#         if SMPLX_KEYPOINTS.index(j) not in body_list:
-#             body_list.append(SMPLX_KEYPOINTS.index(j))
-# print(body_list)
-#
-# left_hand_list=[]
-# for i in SMPLX_LIMBS['left_hand']:
-#     for j in i:
-#         if SMPLX_KEYPOINTS.index(j) not in left_hand_list:
-#             left_hand_list.append(SMPLX_KEYPOINTS.index(j))
-# print(left_hand_list)
-#
-#
-# right_hand_list=[]
-# for i in SMPLX_LIMBS['right_hand']:
-#     for j in i:
-#         if SMPLX_KEYPOINTS.index(j) not in right_hand_list:
-#             right_hand_list.append(SMPLX_KEYPOINTS.index(j))
-# print(right_hand_list)
+shape = np.repeat(shape, len(kpts_smplx), axis=0)
+h5f.create_dataset('shape', data=shape)
+h5f.close()
+
+with h5py.File(os.path.join(data_root, rec_idx, 'annot.h5'), "r+") as f:
+    print("Keys: %s" % f.keys())
