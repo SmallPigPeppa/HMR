@@ -142,4 +142,5 @@ if __name__ == '__main__':
     l = len(gta_loader)
     for _ in range(l):
         r = gta_loader.__getitem__(_)
-        pass
+        print(r)
+        break
