@@ -6,6 +6,7 @@ from kpts_mapping.gta_im import GTA_IM_NPZ_KEYPOINTS, GTA_IM_PKL_KEYPOINTS
 from kpts_mapping.smplx import SMPLX_KEYPOINTS
 import pickle
 import os
+import cv2
 
 # step0:
 # merge info_frames.pickle info_frames.npz
@@ -81,9 +82,25 @@ for i in range(len(kpts_smplx)):
 
 # step3: save smplx as hdf5
 h5f = h5py.File(os.path.join(data_root, rec_idx, 'annot.h5'), 'w')
-h5f.create_dataset('gt2d', data=kpts_smplx)
-h5f.create_dataset('gt3d', data=kpts_smplx)
-h5f.create_dataset('pose', data=kpts_smplx)
+gt3d = kpts_smplx[:, :23, :]
+print(gt3d.shape)
+gt2d=[]
+rvec = np.zeros([3, 1], dtype=float)
+tvec = np.zeros([3, 1], dtype=float)
+dist_coeffs = np.zeros([4,1], dtype=float)
+for i in range(len(gt3d)):
+    camera_matrix_i = info_npz['intrinsics'][i]
+    gt3d_i=np.array(gt3d[i,:,:3],dtype=float)
+    gt2d_i, _ = cv2.projectPoints(gt3d_i, rvec, tvec, camera_matrix_i, dist_coeffs)
+    gt2d.append(gt2d_i)
+gt2d=np.squeeze(np.array(gt2d,dtype=float))
+gt3d=np.array(gt3d,dtype=float)
+valid_kpts=gt3d[:,:,-1].reshape(len(gt3d),-1,1)
+print(gt2d.shape,valid_kpts.shape)
+gt2d = np.concatenate((gt2d,valid_kpts ), axis=-1)
+
+h5f.create_dataset('gt2d', data=gt2d)
+h5f.create_dataset('gt3d', data=gt3d)
 
 # step3: get smplx mesh pose and shape
 smplx_parms = pickle.load(open(os.path.join(data_root, rec_idx, '001_all.pkl'), 'rb'))
@@ -97,9 +114,10 @@ leye_pose = smplx_parms['leye_pose']  # 955,3
 reye_pose = smplx_parms['reye_pose']  # 955,3
 body_pose = smplx_parms['body_pose']  # 955,63
 
+
 shape = np.repeat(shape, len(kpts_smplx), axis=0)
 h5f.create_dataset('shape', data=shape)
+h5f.create_dataset('pose', data=body_pose)
 h5f.close()
-
 with h5py.File(os.path.join(data_root, rec_idx, 'annot.h5'), "r+") as f:
     print("Keys: %s" % f.keys())
