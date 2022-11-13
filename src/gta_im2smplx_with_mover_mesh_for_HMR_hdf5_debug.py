@@ -99,8 +99,10 @@ valid_kpts=gt3d[:,:,-1].reshape(len(gt3d),-1,1)
 print(gt2d.shape,valid_kpts.shape)
 gt2d = np.concatenate((gt2d,valid_kpts ), axis=-1)
 
-h5f.create_dataset('gt2d', data=gt2d)
-h5f.create_dataset('gt3d', data=gt3d)
+# h5f.create_dataset('gt2d', data=gt2d)
+# h5f.create_dataset('gt3d', data=gt3d)
+h5f.create_dataset('gt2d', data=gt2d[:,:,:3])
+h5f.create_dataset('gt3d', data=gt3d[:,:,:3])
 
 # step3: get smplx mesh pose and shape
 smplx_parms = pickle.load(open(os.path.join(data_root, rec_idx, '001_all.pkl'), 'rb'))
