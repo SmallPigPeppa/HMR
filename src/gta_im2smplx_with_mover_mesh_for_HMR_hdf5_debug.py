@@ -117,7 +117,9 @@ body_pose = smplx_parms['body_pose']  # 955,63
 
 shape = np.repeat(shape, len(kpts_smplx), axis=0)
 h5f.create_dataset('shape', data=shape)
-h5f.create_dataset('pose', data=body_pose)
+# h5f.create_dataset('pose', data=body_pose)
+smpl_pose=np.concatenate([body_pose,jaw_pose,global_orient,transl],axis=-1) #24*3
+h5f.create_dataset('pose', data=smpl_pose)
 
 h5f.close()
 with h5py.File(os.path.join(data_root, rec_idx, 'annot.h5'), "r+") as f:
