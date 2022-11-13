@@ -502,12 +502,22 @@ def crop_image(image_path, angle, lt, rb, scale, kp_2d, crop_size):
 '''
 
 
+# def flip_image(src_image, kps):
+#     h, w = src_image.shape[0], src_image.shape[1]
+#     src_image = cv2.flip(src_image, 1)
+#     if kps is not None:
+#         kps[:, 0] = w - 1 - kps[:, 0]
+#         kp_map = [5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 12, 13]
+#         kps[:, :] = kps[kp_map]
+#
+#     return src_image, kps
 def flip_image(src_image, kps):
     h, w = src_image.shape[0], src_image.shape[1]
     src_image = cv2.flip(src_image, 1)
     if kps is not None:
         kps[:, 0] = w - 1 - kps[:, 0]
-        kp_map = [5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 12, 13]
+        # kp_map = [5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 12, 13]
+        kp_map=list(range(0,23))
         kps[:, :] = kps[kp_map]
 
     return src_image, kps

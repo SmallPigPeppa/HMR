@@ -25,7 +25,7 @@ from config import args
 from timer import Clock
 
 
-class hum36m_dataloader(Dataset):
+class gta_dataloader(Dataset):
     def __init__(self, data_set_path, use_crop, scale_range, use_flip, min_pts_required, pix_format='NHWC',
                  normalize=False, flip_prob=0.3):
         self.data_folder = data_set_path
@@ -59,6 +59,7 @@ class hum36m_dataloader(Dataset):
             total_kp3d = np.array(fp['gt3d'])
             total_shap = np.array(fp['shape'])
             total_pose = np.array(fp['pose'])
+            print(total_pose.shape)
 
             assert len(total_kp2d) == len(total_kp3d) and \
                    len(total_kp2d) == len(total_shap) and len(total_kp2d) == len(total_pose)
@@ -78,7 +79,7 @@ class hum36m_dataloader(Dataset):
                     continue
 
                 lt, rb, v = calc_aabb(_collect_valid_pts(kp2d))
-                self.kp2ds.append(np.array(kp2d.copy(), dtype=np.float))
+                self.kp2ds.append(np.array(kp2d.copy(), dtype=float))
                 self.boxs.append((lt, rb))
                 self.kp3ds.append(total_kp3d[index].copy().reshape(-1, 3))
                 self.shapes.append(total_shap[index].copy())
@@ -90,7 +91,6 @@ class hum36m_dataloader(Dataset):
                 self.images.append(img_i)
                 self.masks.append(mask_i)
         print('finished load gta-im data, total {} samples'.format(len(self.kp3ds)))
-
         clk.stop()
 
     def __len__(self):
@@ -136,8 +136,10 @@ class hum36m_dataloader(Dataset):
 
 
 if __name__ == '__main__':
-    h36m = hum36m_dataloader('E:/HMR/data/human3.6m', True, [1.1, 2.0], True, 5, flip_prob=1)
-    l = len(h36m)
+#     h36m = hum36m_dataloader('E:/HMR/data/human3.6m', True, [1.1, 2.0], True, 5, flip_prob=1)
+    data_dir='C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
+    gta_loader=gta_dataloader(data_dir, True, [1.1, 2.0], True, 5, flip_prob=1)
+    l = len(gta_loader)
     for _ in range(l):
-        r = h36m.__getitem__(_)
+        r = gta_loader.__getitem__(_)
         pass
