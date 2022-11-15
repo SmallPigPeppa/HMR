@@ -362,6 +362,7 @@ def cut_image(filePath, kps, expand_ratio, leftTop, rightBottom):
 
 def reflect_lsp_kp(kps):
     kp_map = [5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 12, 13]
+    kp_map = list(range(23))
     joint_ref = kps[kp_map]
     joint_ref[:, 0] = -joint_ref[:, 0]
 
@@ -517,7 +518,7 @@ def flip_image(src_image, kps):
     if kps is not None:
         kps[:, 0] = w - 1 - kps[:, 0]
         # kp_map = [5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 12, 13]
-        kp_map=list(range(0,23))
+        kp_map = list(range(0, 23))
         kps[:, :] = kps[kp_map]
 
     return src_image, kps

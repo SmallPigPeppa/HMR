@@ -219,9 +219,9 @@ parser.add_argument(
 # train_adv_set = ['mosh']
 
 
-train_2d_set = ['gta-im']
-train_3d_set = ['gta-im']
-train_adv_set = ['gta-im']
+train_2d_set = ['gta']
+train_3d_set = ['gta']
+train_adv_set = ['mosh']
 
 eval_set = ['up3d']
 
@@ -257,8 +257,9 @@ data_set_path = {
     'ai-ch':'E:/HMR/data/ai_challenger_keypoint_train_20170902',
     'mpi-inf-3dhp':'E:/HMR/data/mpi_inf_3dhp',
     'hum3.6m':'E:/HMR/data/human3.6m',
-    'mosh':'E:/HMR/data/mosh_gen',
-    'up3d':'E:/HMR/data/up3d_mpii'
+    'mosh':'C:/Users/90532/Desktop/Datasets/HMR/mosh',
+    'up3d':'E:/HMR/data/up3d_mpii',
+    'gta':'C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
 }
 
 # pre_trained_model = {

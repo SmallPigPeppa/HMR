@@ -135,12 +135,37 @@ class gta_dataloader(Dataset):
         }
 
 
-if __name__ == '__main__':
-#     h36m = hum36m_dataloader('E:/HMR/data/human3.6m', True, [1.1, 2.0], True, 5, flip_prob=1)
-    data_dir='C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
-    gta_loader=gta_dataloader(data_dir, True, [1.1, 2.0], True, 5, flip_prob=1)
-    l = len(gta_loader)
-    for _ in range(l):
-        r = gta_loader.__getitem__(_)
-        print(r)
-        break
+# if __name__ == '__main__':
+# #     h36m = hum36m_dataloader('E:/HMR/data/human3.6m', True, [1.1, 2.0], True, 5, flip_prob=1)
+#     data_dir='C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
+#     gta_loader=gta_dataloader(data_dir, True, [1.1, 2.0], True, 5, flip_prob=1)
+#     l = len(gta_loader)
+#     for _ in range(l):
+#         r = gta_loader.__getitem__(_)
+#         print(r)
+#         break
+
+if __name__=='__main__':
+    data_set_path='C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
+    pix_format = 'NCHW'
+    normalize = True
+    flip_prob = 0.5
+    use_flip = False
+    gta_loader = gta_dataloader(
+        data_set_path=data_set_path,
+        use_crop=True,
+        scale_range=[1.1, 2.0],
+        use_flip=True,
+        min_pts_required=5,
+        pix_format=pix_format,
+        normalize=normalize,
+        flip_prob=flip_prob
+    )
+    # for idx,i in enumerate(iter(gta_loader)):
+    #     if i['kp_2d'].shape!=i['kp_3d'].shape:
+    #         print('frame{idx}'.format(idx=idx))
+    #         print(i['kp_2d'].shape,i['kp_3d'].shape)
+    for idx,i in enumerate(iter(gta_loader)):
+        if len(i['kp_2d'])!=23:
+            print('frame{idx}'.format(idx=idx))
+            print(i['kp_2d'].shape,i['kp_3d'].shape)

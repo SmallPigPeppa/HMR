@@ -35,33 +35,33 @@ class SMPL(nn.Module):
         else:
             self.faces = None
 
-        np_v_template = np.array(model['v_template'], dtype=float)
+        np_v_template = np.array(model['v_template'], dtype=np.float)
         self.register_buffer('v_template', torch.from_numpy(np_v_template).float())
         self.size = [np_v_template.shape[0], 3]
 
-        np_shapedirs = np.array(model['shapedirs'], dtype=float)
+        np_shapedirs = np.array(model['shapedirs'], dtype=np.float)
         self.num_betas = np_shapedirs.shape[-1]
         np_shapedirs = np.reshape(np_shapedirs, [-1, self.num_betas]).T
         self.register_buffer('shapedirs', torch.from_numpy(np_shapedirs).float())
 
         # np_J_regressor = np.array(model['J_regressor'], dtype = np.float)
-        np_J_regressor = np.array(model['J_regressor'].toarray(), dtype=float)
+        np_J_regressor = np.array(model['J_regressor'].toarray(), dtype=np.float)
         self.register_buffer('J_regressor', torch.from_numpy(np_J_regressor).float())
 
-        np_posedirs = np.array(model['posedirs'], dtype=float)
+        np_posedirs = np.array(model['posedirs'], dtype=np.float)
         num_pose_basis = np_posedirs.shape[-1]
         np_posedirs = np.reshape(np_posedirs, [-1, num_pose_basis]).T
         self.register_buffer('posedirs', torch.from_numpy(np_posedirs).float())
 
         self.parents = np.array(model['kintree_table'])[0].astype(np.int32)
         # np_joint_regressor = np.array(model['cocoplus_regressor'], dtype=np.float)
-        np_joint_regressor = np.array(model['cocoplus_regressor'].toarray(), dtype=float)
+        np_joint_regressor = np.array(model['cocoplus_regressor'].toarray(), dtype=np.float)
         if joint_type == 'lsp':
             self.register_buffer('joint_regressor', torch.from_numpy(np_joint_regressor[:, :14]).float())
         else:
             self.register_buffer('joint_regressor', torch.from_numpy(np_joint_regressor).float())
 
-        np_weights = np.array(model['weights'], dtype=float)
+        np_weights = np.array(model['weights'], dtype=np.float)
 
         vertex_count = np_weights.shape[0]
         vertex_component = np_weights.shape[1]
@@ -127,8 +127,7 @@ class SMPL(nn.Module):
 
 if __name__ == '__main__':
     device = torch.device('cuda', 0)
-    # smpl = SMPL(args.smpl_model, obj_saveable=True).to(device)
-    smpl = SMPL('HMR-data/neutral_smpl_with_cocoplus_reg.pkl', obj_saveable=True).to(device)
+    smpl = SMPL(args.smpl_model, obj_saveable=True).to(device)
     pose = np.array([
         1.22162998e+00, 1.17162502e+00, 1.16706634e+00,
         -1.20581151e-03, 8.60930011e-02, 4.45963144e-02,
@@ -153,8 +152,8 @@ if __name__ == '__main__':
         2.04248756e-01, -6.33800551e-02, -5.50178960e-02,
         -1.00920045e+00, 2.39532292e-01, 3.62904727e-01,
         -3.38783532e-01, 9.40650925e-02, -8.44506770e-02,
-        3.55101633e-03, -2.68924050e-02, 4.93676625e-02], dtype=float)
-    print(pose.shape)
+        3.55101633e-03, -2.68924050e-02, 4.93676625e-02], dtype=np.float)
+
     beta = np.array([-0.25349993, 0.25009069, 0.21440795, 0.78280628, 0.08625954,
                      0.28128183, 0.06626327, -0.26495767, 0.09009246, 0.06537955])
 
