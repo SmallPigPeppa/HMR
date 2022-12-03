@@ -82,7 +82,7 @@ for i in range(len(kpts_smplx)):
 
 # step3: save smplx as hdf5
 h5f = h5py.File(os.path.join(data_root, rec_idx, 'annot.h5'), 'w')
-gt3d = kpts_smplx[:, :23, :]
+gt3d = kpts_smplx[:, :14, :]
 print(gt3d.shape)
 gt2d=[]
 rvec = np.zeros([3, 1], dtype=float)

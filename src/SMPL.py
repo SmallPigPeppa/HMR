@@ -12,7 +12,6 @@ import sys
 import numpy as np
 from util import batch_global_rigid_transformation, batch_rodrigues, batch_lrotmin, reflect_pose
 import torch.nn as nn
-import pickle
 
 
 class SMPL(nn.Module):
@@ -25,10 +24,8 @@ class SMPL(nn.Module):
 
         self.model_path = model_path
         self.joint_type = joint_type
-
-        model = pickle.load(open(model_path, 'rb'), encoding='latin1')
-        # with open(model_path, 'r') as reader:
-        #     model = json.load(reader)
+        with open(model_path, 'r') as reader:
+            model = json.load(reader)
 
         if obj_saveable:
             self.faces = model['f']
@@ -44,8 +41,7 @@ class SMPL(nn.Module):
         np_shapedirs = np.reshape(np_shapedirs, [-1, self.num_betas]).T
         self.register_buffer('shapedirs', torch.from_numpy(np_shapedirs).float())
 
-        # np_J_regressor = np.array(model['J_regressor'], dtype = np.float)
-        np_J_regressor = np.array(model['J_regressor'].toarray(), dtype=float)
+        np_J_regressor = np.array(model['J_regressor'], dtype=float)
         self.register_buffer('J_regressor', torch.from_numpy(np_J_regressor).float())
 
         np_posedirs = np.array(model['posedirs'], dtype=float)
@@ -54,8 +50,8 @@ class SMPL(nn.Module):
         self.register_buffer('posedirs', torch.from_numpy(np_posedirs).float())
 
         self.parents = np.array(model['kintree_table'])[0].astype(np.int32)
-        # np_joint_regressor = np.array(model['cocoplus_regressor'], dtype=np.float)
-        np_joint_regressor = np.array(model['cocoplus_regressor'].toarray(), dtype=float)
+
+        np_joint_regressor = np.array(model['cocoplus_regressor'], dtype=float)
         if joint_type == 'lsp':
             self.register_buffer('joint_regressor', torch.from_numpy(np_joint_regressor[:, :14]).float())
         else:
@@ -119,6 +115,7 @@ class SMPL(nn.Module):
 
         joints = torch.stack([joint_x, joint_y, joint_z], dim=2)
 
+
         if get_skin:
             return verts, joints, Rs
         else:
@@ -127,8 +124,8 @@ class SMPL(nn.Module):
 
 if __name__ == '__main__':
     device = torch.device('cuda', 0)
-    # smpl = SMPL(args.smpl_model, obj_saveable=True).to(device)
-    smpl = SMPL('HMR-data/neutral_smpl_with_cocoplus_reg.pkl', obj_saveable=True).to(device)
+    # smpl = SMPL(args.smpl_model, obj_saveable = True).to(device)
+    smpl = SMPL('HMR-data/neutral_smpl_with_cocoplus_reg.txt', obj_saveable=True).to(device)
     pose = np.array([
         1.22162998e+00, 1.17162502e+00, 1.16706634e+00,
         -1.20581151e-03, 8.60930011e-02, 4.45963144e-02,
@@ -154,7 +151,29 @@ if __name__ == '__main__':
         -1.00920045e+00, 2.39532292e-01, 3.62904727e-01,
         -3.38783532e-01, 9.40650925e-02, -8.44506770e-02,
         3.55101633e-03, -2.68924050e-02, 4.93676625e-02], dtype=float)
+    # pose gta
+    pose = np.array([-1.06356069e-01, -6.37851134e-02, 1.28229275e-01, 3.14740166e-02
+                        , 6.96886517e-03, -5.28118573e-03, 1.10189825e-01, 6.98541477e-02
+                        , -2.66963821e-02, 1.32812247e-01, -2.03864664e-01, 2.89163440e-02
+                        , 1.16681933e-01, 2.06119910e-01, -4.80791740e-02, -2.18707517e-01
+                        , -8.01814813e-03, 1.82050299e-02, -1.28349841e-01, 2.22675905e-01
+                        , 3.26793492e-02, -2.06748575e-01, -1.49768770e-01, 7.15743452e-02
+                        , 1.65331662e-01, 1.38076292e-02, -1.42812368e-03, -2.06260402e-02
+                        , -2.21656114e-02, -1.73571818e-02, -3.12202759e-02, 1.78035423e-02
+                        , 1.57488566e-02, 7.14080036e-02, 1.42807439e-02, 1.13723464e-01
+                        , -4.22706939e-02, 9.08964500e-02, -5.61761893e-02, -3.77132706e-02
+                        , -7.63041452e-02, 1.39894500e-01, 5.07261515e-01, -1.79262087e-01
+                        , 8.70353431e-02, 1.48569643e-01, -3.87416214e-01, -9.28629994e-01
+                        , 3.01834077e-01, 3.44428927e-01, 9.85755265e-01, 5.37861466e-01
+                        , -2.59827077e-01, -2.08760008e-01, 5.28815627e-01, 4.55017388e-01
+                        , 2.53529418e-02, -7.59927928e-02, -1.38382733e-01, -9.92430225e-02
+                        , -1.50544690e-02, 3.49707603e-02, 1.02849029e-01, 0.00000000e+00
+                        , 0.00000000e+00, 0.00000000e+00, -1.57515180e+00, 6.07206464e-01
+                        , -2.32540131e+00, -2.63700366e-01, 9.43108380e-01, 1.82193077e+00]
+                    , dtype=float)
+
     print(pose.shape)
+
     beta = np.array([-0.25349993, 0.25009069, 0.21440795, 0.78280628, 0.08625954,
                      0.28128183, 0.06626327, -0.26495767, 0.09009246, 0.06537955])
 
