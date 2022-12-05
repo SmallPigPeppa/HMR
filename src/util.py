@@ -17,19 +17,40 @@ import cv2
 import math
 from scipy import interpolate
 
-def load_mean_theta():
-    mean = np.zeros(args.total_theta_count, dtype = np.float)
+# def load_mean_theta():
+#     mean = np.zeros(args.total_theta_count, dtype = np.float)
+#
+#     mean_values = h5py.File(args.smpl_mean_theta_path)
+#     mean_pose = mean_values['pose']
+#     mean_pose[:3] = 0
+#     mean_shape = mean_values['shape']
+#     mean_pose[0]=np.pi
+#
+#     #init sacle is 0.9
+#     mean[0] = 0.9
+#
+#     mean[3:75] = mean_pose[:]
+#     mean[75:] = mean_shape[:]
+#
+#     return mean
 
+def load_mean_theta():
+    mean = np.zeros(args.total_theta_count, dtype=np.float)
+
+    # mean_values = h5py.File(args.smpl_mean_theta_path)
     mean_values = h5py.File(args.smpl_mean_theta_path)
     mean_pose = mean_values['pose']
-    mean_pose[:3] = 0
+    # mean_pose[:3] = 0
     mean_shape = mean_values['shape']
-    mean_pose[0]=np.pi
+    # mean_pose[0] = np.pi
 
-    #init sacle is 0.9
+    # init sacle is 0.9
     mean[0] = 0.9
 
     mean[3:75] = mean_pose[:]
+    mean[3:6] = 0
+    mean[3] = np.pi
+
     mean[75:] = mean_shape[:]
 
     return mean
