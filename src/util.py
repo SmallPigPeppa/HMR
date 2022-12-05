@@ -345,6 +345,14 @@ def reflect_lsp_kp(kps):
 
     return joint_ref - np.mean(joint_ref, axis = 0)
 
+# todo
+def reflect_smpl_kp(kps):
+    kp_map = list(range(23))
+    joint_ref = kps[kp_map]
+    joint_ref[:,0] = -joint_ref[:,0]
+
+    return joint_ref - np.mean(joint_ref, axis = 0)
+
 '''
     purpose:
         reflect poses, when the image is reflect by left-right
