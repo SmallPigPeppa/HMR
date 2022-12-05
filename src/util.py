@@ -490,6 +490,17 @@ def flip_image(src_image, kps):
 
     return src_image, kps
 
+# todo
+def flip_image_gta_smpl(src_image, kps):
+    h, w = src_image.shape[0], src_image.shape[1]
+    src_image = cv2.flip(src_image, 1)
+    if kps is not None:
+        kps[:, 0] = w - 1 - kps[:, 0]
+        kp_map = [5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 12, 13]
+        kps[:, :] = kps[kp_map]
+
+    return src_image, kps
+
 '''
     src_image: h x w x c
     pts: 14 x 3
