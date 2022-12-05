@@ -214,9 +214,15 @@ parser.add_argument(
     help = 'enable inter supervision or not.'
 )
 
-train_2d_set = ['coco', 'lsp', 'lsp_ext', 'ai-ch']
-train_3d_set = ['mpi-inf-3dhp', 'hum3.6m']
+# train_2d_set = ['coco', 'lsp', 'lsp_ext', 'ai-ch']
+# train_3d_set = ['mpi-inf-3dhp', 'hum3.6m']
+# train_adv_set = ['mosh']
+
+
+train_2d_set = ['gta']
+train_3d_set = ['gta']
 train_adv_set = ['mosh']
+
 eval_set = ['up3d']
 
 allowed_encoder_net = ['hourglass', 'resnet50', 'densenet169']
@@ -233,6 +239,17 @@ crop_size = {
     'densenet169':224
 }
 
+# data_set_path = {
+#     'coco':'E:/HMR/data/COCO/',
+#     'lsp':'E:/HMR/data/lsp',
+#     'lsp_ext':'E:/HMR/data/lsp_ext',
+#     'ai-ch':'E:/HMR/data/ai_challenger_keypoint_train_20170902',
+#     'mpi-inf-3dhp':'E:/HMR/data/mpi_inf_3dhp',
+#     'hum3.6m':'E:/HMR/data/human3.6m',
+#     'mosh':'E:/HMR/data/mosh_gen',
+#     'up3d':'E:/HMR/data/up3d_mpii'
+# }
+
 data_set_path = {
     'coco':'E:/HMR/data/COCO/',
     'lsp':'E:/HMR/data/lsp',
@@ -240,10 +257,15 @@ data_set_path = {
     'ai-ch':'E:/HMR/data/ai_challenger_keypoint_train_20170902',
     'mpi-inf-3dhp':'E:/HMR/data/mpi_inf_3dhp',
     'hum3.6m':'E:/HMR/data/human3.6m',
-    'mosh':'E:/HMR/data/mosh_gen',
-    'up3d':'E:/HMR/data/up3d_mpii'
+    'mosh':'C:/Users/90532/Desktop/Datasets/HMR/mosh',
+    'up3d':'E:/HMR/data/up3d_mpii',
+    'gta':'C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
 }
 
+# pre_trained_model = {
+#     'generator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_generator.pkl',
+#     'discriminator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_discriminator.pkl'
+# }
 pre_trained_model = {
     'generator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_generator.pkl',
     'discriminator' : '/media/disk1/zhangxiong/HMR/hmr_resnet50/fine_tuned/3500_discriminator.pkl'
