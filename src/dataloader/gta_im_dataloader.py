@@ -121,7 +121,7 @@ class hum36m_dataloader(Dataset):
             'image_name': self.images[index],
             'w_smpl':1.0,
             'w_3d':1.0,
-            'data_set':'hum3.6m'
+            'data_set':'gta-im'
         }
 
 if __name__ == '__main__':
