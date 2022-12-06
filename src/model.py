@@ -19,6 +19,7 @@ import Resnet
 from HourGlass import _create_hourglass_net
 from densenet import load_denseNet
 import sys
+from camera_utils import  perspective_projection, convert_weak_perspective_to_perspective
 
 class ThetaRegressor(LinearModel):
     def __init__(self, fc_layers, use_dropout, drop_prob, use_ac_func, iterations):
@@ -79,6 +80,10 @@ class HMRNetBase(nn.Module):
         self.total_theta_count = args.total_theta_count
         self.joint_count = args.joint_count
         self.feature_count = args.feature_count
+
+        self.crop_size=args.crop_size
+        self.focal_length=5000.
+        self.normalize_joints2d=True
         
     def _create_sub_modules(self):
         '''
@@ -157,6 +162,15 @@ class HMRNetBase(nn.Module):
             thetas, verts, j2d, j3d, Rs
     '''
     
+    # def _calc_detail_info(self, theta):
+    #     cam = theta[:, 0:3].contiguous()
+    #     pose = theta[:, 3:75].contiguous()
+    #     shape = theta[:, 75:].contiguous()
+    #     verts, j3d, Rs = self.smpl(beta = shape, theta = pose, get_skin = True)
+    #     j2d = util.batch_orth_proj(j3d, cam)
+    #
+    #     return (theta, verts, j2d, j3d, Rs)
+
     def _calc_detail_info(self, theta):
         cam = theta[:, 0:3].contiguous()
         pose = theta[:, 3:75].contiguous()
@@ -164,7 +178,27 @@ class HMRNetBase(nn.Module):
         verts, j3d, Rs = self.smpl(beta = shape, theta = pose, get_skin = True)
         j2d = util.batch_orth_proj(j3d, cam)
 
+        batch_size = j3d.shape[0]
+        device = j3d.device
+        cam_t = convert_weak_perspective_to_perspective(
+            cam,
+            focal_length=self.focal_length,
+            img_res=self.crop_size,
+        )
+        j2d = perspective_projection(
+            j3d,
+            rotation=torch.eye(3, device=device).unsqueeze(0).expand(batch_size, -1, -1),
+            translation=cam_t,
+            focal_length=self.focal_length,
+            camera_center=torch.zeros(batch_size, 2, device=device)
+        )
+        if self.normalize_joints2d:
+            # Normalize keypoints to [-1,1]
+            j2d = j2d / (self.crop_size / 2.)
+
         return (theta, verts, j2d, j3d, Rs)
+
+
 
 if __name__ == '__main__':
     cam = np.array([[0.9, 0, 0]], dtype = np.float)

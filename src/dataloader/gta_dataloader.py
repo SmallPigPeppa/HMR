@@ -1,9 +1,9 @@
 '''
-    file:   hum36m_dataloader.py
+    file:   gta_dataloader.py
 
-    author: zhangxiong(1025679612@qq.com)
-    date:   2018_05_09
-    purpose:  load hum3.6m data
+    author: wzliu
+    date:   2022
+    purpose:  load gta-im data
 '''
 
 import sys
