@@ -1,9 +1,9 @@
 '''
     file:   hum36m_dataloader.py
 
-    author: wzliu
-    date:   2022
-    purpose:  load gta-im data
+    author: zhangxiong(1025679612@qq.com)
+    date:   2018_05_09
+    purpose:  load hum3.6m data
 '''
 
 import sys
@@ -16,6 +16,7 @@ import cv2
 import json
 import h5py
 import torch
+import pickle
 
 sys.path.append('./src')
 from util import calc_aabb, cut_image, flip_image, draw_lsp_14kp__bone, rectangle_intersect, \
@@ -24,7 +25,7 @@ from config import args
 from timer import Clock
 
 
-class hum36m_dataloader(Dataset):
+class gta_dataloader(Dataset):
     def __init__(self, data_set_path, use_crop, scale_range, use_flip, min_pts_required, pix_format='NHWC',
                  normalize=False, flip_prob=0.3):
         self.data_folder = data_set_path
@@ -47,18 +48,20 @@ class hum36m_dataloader(Dataset):
         self.kp3ds = []
         self.shapes = []
         self.poses = []
+        self.masks=[]
 
-        print('start loading hum3.6m data.')
-
+        print('start loading gta-im data.')
         anno_file_path = os.path.join(self.data_folder, 'annot.h5')
+
+
         with h5py.File(anno_file_path) as fp:
             total_kp2d = np.array(fp['gt2d'])
             total_kp3d = np.array(fp['gt3d'])
             total_shap = np.array(fp['shape'])
             total_pose = np.array(fp['pose'])
-            total_image_names = np.array(fp['imagename'])
+            print(total_pose.shape)
 
-            assert len(total_kp2d) == len(total_kp3d) and len(total_kp2d) == len(total_image_names) and \
+            assert len(total_kp2d) == len(total_kp3d) and \
                    len(total_kp2d) == len(total_shap) and len(total_kp2d) == len(total_pose)
 
             l = len(total_kp2d)
@@ -76,15 +79,18 @@ class hum36m_dataloader(Dataset):
                     continue
 
                 lt, rb, v = calc_aabb(_collect_valid_pts(kp2d))
-                self.kp2ds.append(np.array(kp2d.copy(), dtype=np.float))
+                self.kp2ds.append(np.array(kp2d.copy(), dtype=float))
                 self.boxs.append((lt, rb))
                 self.kp3ds.append(total_kp3d[index].copy().reshape(-1, 3))
                 self.shapes.append(total_shap[index].copy())
                 self.poses.append(total_pose[index].copy())
-                self.images.append(os.path.join(self.data_folder, 'image') + total_image_names[index].decode())
 
-        print('finished load hum3.6m data, total {} samples'.format(len(self.kp3ds)))
-
+                img_i = os.path.join(self.data_folder, '{:05d}'.format(index) + '.jpg')
+                mask_i = os.path.join(self.data_folder, '{:05d}'.format(index) + '_id.png')
+                assert os.path.exists(img_i) and os.path.exists(mask_i)
+                self.images.append(img_i)
+                self.masks.append(mask_i)
+        print('finished load gta-im data, total {} samples'.format(len(self.kp3ds)))
         clk.stop()
 
     def __len__(self):
@@ -129,9 +135,37 @@ class hum36m_dataloader(Dataset):
         }
 
 
-if __name__ == '__main__':
-    h36m = hum36m_dataloader('E:/HMR/data/human3.6m', True, [1.1, 2.0], True, 5, flip_prob=1)
-    l = len(h36m)
-    for _ in range(l):
-        r = h36m.__getitem__(_)
-        pass
+# if __name__ == '__main__':
+# #     h36m = hum36m_dataloader('E:/HMR/data/human3.6m', True, [1.1, 2.0], True, 5, flip_prob=1)
+#     data_dir='C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
+#     gta_loader=gta_dataloader(data_dir, True, [1.1, 2.0], True, 5, flip_prob=1)
+#     l = len(gta_loader)
+#     for _ in range(l):
+#         r = gta_loader.__getitem__(_)
+#         print(r)
+#         break
+
+if __name__=='__main__':
+    data_set_path='C:/Users/90532/Desktop/Datasets/HMR/2020-06-11-10-06-48'
+    pix_format = 'NCHW'
+    normalize = True
+    flip_prob = 0.5
+    use_flip = False
+    gta_loader = gta_dataloader(
+        data_set_path=data_set_path,
+        use_crop=True,
+        scale_range=[1.1, 2.0],
+        use_flip=True,
+        min_pts_required=5,
+        pix_format=pix_format,
+        normalize=normalize,
+        flip_prob=flip_prob
+    )
+    # for idx,i in enumerate(iter(gta_loader)):
+    #     if i['kp_2d'].shape!=i['kp_3d'].shape:
+    #         print('frame{idx}'.format(idx=idx))
+    #         print(i['kp_2d'].shape,i['kp_3d'].shape)
+    for idx,i in enumerate(iter(gta_loader)):
+        if len(i['kp_2d'])!=23:
+            print('frame{idx}'.format(idx=idx))
+            print(i['kp_2d'].shape,i['kp_3d'].shape)
